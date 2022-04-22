@@ -1,18 +1,19 @@
 {
     "name": "AutoChallengeGamersClub",
     "version": "0.0.2",
-    "manifest_version": 2,
+    "manifest_version": 3,
     "description": "Google Chrome Extension to auto defying on Gamers Club",
     "content_scripts": [{
       "matches": [ "*://gamersclub.com.br/*" ],
       "js": ["content.js"]
     }],
-    "browser_action": {
+    "icons": { "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png" 
+     },
+    "action": {
         "default_popup":"popup.html",
-        "default_icon": "icon128.png",
-        "icons": { "16": "icon16.png",
-                   "48": "icon48.png",
-                   "128": "icon128.png" 
-                  }
+        "default_icon": "icon128.png"
+        
     }
   }

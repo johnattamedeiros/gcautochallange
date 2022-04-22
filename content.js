@@ -3,11 +3,13 @@ chrome.runtime.onMessage.addListener(config => {
   let onlyPrime = config.onlyPrime;
   let maxLevel = config.maxLevel;
   let minLevel = config.minLevel;
+  let maxKDR = config.maxKDR;
   console.log("INITIALIZING ....");
 
   let rooms = document.getElementsByClassName("lobby-room-list-item sala-card-wrapper");
   let countPrime = [];
   let averageLevel = [];
+  let countKDRAccepted = [];
   let roomsToChallenge = [];
   let roomSize = 5;
   console.log("Find room min level : " + minLevel);
@@ -19,18 +21,28 @@ chrome.runtime.onMessage.addListener(config => {
       let players = rooms[roomIndex].getElementsByClassName("sala-lineup-player");
       countPrime[roomIndex] = 0;
       averageLevel[roomIndex] = 0;
+      countKDRAccepted[roomIndex] = 0;
 
       for (var playerIndex = 0; playerIndex < players.length; playerIndex = playerIndex + 1) {
         let playerPrime = players[playerIndex].getElementsByClassName("is-prime true");
         if (playerPrime.length > 0) {
           countPrime[roomIndex] = countPrime[roomIndex] + 1;
         }
+
+        let playersKdrDiv = players[playerIndex].getElementsByClassName("gcc-kdr")[0];
+        let playerKdr = parseFloat(playersKdrDiv.innerText);
+        if(playerKdr < parseFloat(maxKDR)){
+          countKDRAccepted[roomIndex] = countKDRAccepted[roomIndex] + 1;
+        }
+        
         let playerLevelDiv = players[playerIndex].getElementsByClassName("sala-lineup-level");
         let playerLevel;
         for (var playerLevelDivIndex = 0; playerLevelDivIndex < playerLevelDiv.length; playerLevelDivIndex = playerLevelDivIndex + 1) {
-          let levelSpan = playerLevelDiv[playerLevelDivIndex].getElementsByClassName("badge")[0];
-          if (!levelSpan) {
-            levelSpan = playerLevelDiv[playerLevelDivIndex].getElementsByClassName("lvl-value")[0];
+          let levelSpanPrime = playerLevelDiv[playerLevelDivIndex].getElementsByClassName("badge-level-value")[0];
+          if (levelSpanPrime) {
+            levelSpan = levelSpanPrime;
+          } else {
+            levelSpan = playerLevelDiv[playerLevelDivIndex].getElementsByClassName("badge-level")[0];
           }
           playerLevel = levelSpan.innerText;
         }
@@ -41,12 +53,16 @@ chrome.runtime.onMessage.addListener(config => {
       if (onlyPrime) {
         if (countPrime[roomIndex] === roomSize) {
           if (averageLevel[roomIndex] === roomSize) {
-            roomsToChallenge.push(rooms[roomIndex]);
+            if (countKDRAccepted[roomIndex] === roomSize) {
+              roomsToChallenge.push(rooms[roomIndex]);
+            }
           }
         }
       } else {
         if (averageLevel[roomIndex] === roomSize) {
-          roomsToChallenge.push(rooms[roomIndex]);
+          if (countKDRAccepted[roomIndex] === roomSize) {
+              roomsToChallenge.push(rooms[roomIndex]);
+          }
         }
       }
     }
@@ -54,7 +70,7 @@ chrome.runtime.onMessage.addListener(config => {
   console.log("\rDefying  " + roomsToChallenge.length + " rooms ");
   for (var roomsToChallengeIndex = 0; roomsToChallengeIndex < roomsToChallenge.length; roomsToChallengeIndex = roomsToChallengeIndex + 1) {
     defyingButton = roomsToChallenge[roomsToChallengeIndex].querySelector('.lobby-btn-play-big');
-    defyingButton.click();
+    //defyingButton.click();
   }
 
 });
